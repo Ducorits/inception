@@ -10,6 +10,11 @@ RUN curl -O https://wordpress.org/latest.tar.gz \
 	&& tar -xzf latest.tar.gz --strip-components=1 \
 	&& rm latest.tar.gz
 
+RUN mkdir -p /run/php
+
+RUN sed -i 's|listen = /run/php/php7.4-fpm.sock|listen = 9000|' /etc/php/7.4/fpm/pool.d/www.conf
+
+
 # Copy PHP-FPM pool config later if needed
 EXPOSE 9000
 
