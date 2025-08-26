@@ -1,7 +1,7 @@
 FROM debian:bullseye-slim
 
 RUN apt-get update && apt-get install -y \
-	php-fpm php-mysql wget curl unzip \
+	php-fpm php-mysql wget curl unzip inetutils-ping \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Install WordPress (latest stable tarball)
@@ -14,8 +14,15 @@ RUN mkdir -p /run/php
 
 RUN sed -i 's|listen = /run/php/php7.4-fpm.sock|listen = 9000|' /etc/php/7.4/fpm/pool.d/www.conf
 
+RUN export WORDPRESS_DB_PASSWORD=$(cat /run/secrets/db_password)
+
+
+
 
 # Copy PHP-FPM pool config later if needed
 EXPOSE 9000
 
+COPY wordpress-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/wordpress-entrypoint.sh
+ENTRYPOINT ["wordpress-entrypoint.sh"]
 CMD ["php-fpm7.4", "-F"]
