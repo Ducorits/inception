@@ -2,6 +2,7 @@
 
 # DB_ROOT_PASS=$(cat /run/secrets/db_root_password)
 DB_PASS=$(cat /run/secrets/db_password)
+DB_ROOT_PASS=$(cat /run/secrets/db_root_password)
 
 #if anything fails, exit script for easier debuggin
 set -e
@@ -14,6 +15,7 @@ chown -R mysql:mysql /run/mysqld /var/log/mysql /var/lib/mysql
 echo "Initializing MariaDB with bootstrap..."
 {
     echo "FLUSH PRIVILEGES;"
+    echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_ROOT_PASS}';"
     echo "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;"
     echo "CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$DB_PASS';"
     echo "GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '$DB_USER'@'%';"

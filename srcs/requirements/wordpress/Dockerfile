@@ -1,21 +1,21 @@
 FROM debian:bullseye-slim
 
-RUN apt-get update && apt-get install -y \
-	php-fpm php-mysql wget curl unzip inetutils-ping \
+# docker can cache the first RUN
+RUN apt-get update && apt-get install -y
+RUN apt-get install -y \
+	php php-fpm php-mysql mariadb-client wget curl unzip inetutils-ping \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Install WordPress (latest stable tarball)
 WORKDIR /var/www/html
 RUN curl -O https://wordpress.org/latest.tar.gz \
 	&& tar -xzf latest.tar.gz --strip-components=1 \
-	&& rm latest.tar.gz
-
-RUN mkdir -p /run/php
-
-RUN sed -i 's|listen = /run/php/php7.4-fpm.sock|listen = 9000|' /etc/php/7.4/fpm/pool.d/www.conf
-
-RUN export WORDPRESS_DB_PASSWORD=$(cat /run/secrets/db_password)
-
+	&& rm latest.tar.gz \
+	&& mkdir -p /run/php \
+	&& sed -i 's|listen = /run/php/php7.4-fpm.sock|listen = 9000|' /etc/php/7.4/fpm/pool.d/www.conf \
+	&& chown -R www-data:www-data /var/www/html
+RUN curl -L https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /usr/local/bin/wp \
+	&& chmod +x /usr/local/bin/wp
 
 
 
